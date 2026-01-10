@@ -11,7 +11,7 @@ const teekConfig = defineTeekConfig({
   },
   author: {
     name: "云林夕", // 作者名称
-    link: "https://github.com/KeyPJ", // 点击作者名称后跳转的链接
+    link: "/me.html", // 点击作者名称后跳转的链接
   },
   banner: {
     enabled: true, // 是否启用 Banner
@@ -99,13 +99,31 @@ const teekConfig = defineTeekConfig({
       defaultColorName: "ep-blue",
     },
   },
-  comment:{
-    options:{
+  comment: {
+    provider: "waline",
+    options: {
       serverURL: "https://waline.keypj.52v6.com/",
       jsLink: "https://unpkg.com/@waline/client@v3/dist/waline.js",
       cssLink: "https://unpkg.com/@waline/client@v3/dist/waline.css",
     }
-  }
+  },
+  docAnalysis: {
+    enabled: true, // 是否启用站点信息卡片
+    createTime: "2026-01-01", // 站点创建时间
+    wordCount: true, // 是否开启文章页的字数统计
+    readingTime: true, // 是否开启文章页的阅读时长统计
+  },
+  page: {
+    disabled: false, // 是否禁用
+    pageSize: 10, // 每页显示条目数
+    pagerCount: 7, // 设置最大页码按钮数。 页码按钮的数量，当总页数超过该值时会折叠
+    layout: "prev, pager, next, jumper, ->, total", // 组件布局，子组件名用逗号分隔
+    size: "default", // 分页大小
+    background: false, // 是否为分页按钮添加背景色
+    hideOnSinglePage: false, // 只有一页时是否隐藏
+    // ...
+  },
+
 });
 
 
@@ -118,22 +136,23 @@ export default defineConfig({
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
-      { text: 'Home', link: '/' },
-      { text: 'Examples', link: '/markdown-examples' }
+      { text: '主页', link: '/' },
+      { text: '归档', link: '/archives' },
+      { text: '关爱父母,关注城乡养老', link: '/pages/series-index.html' },
     ],
 
-    sidebar: [
-      {
-        text: 'Examples',
-        items: [
-          { text: 'Markdown Examples', link: '/markdown-examples' },
-          { text: 'Runtime API Examples', link: '/api-examples' }
-        ]
-      }
-    ],
+    // sidebar: [
+    //   {
+    //     text: 'Examples',
+    //     items: [
+    //       { text: 'Markdown Examples', link: '/markdown-examples' },
+    //       { text: 'Runtime API Examples', link: '/api-examples' }
+    //     ]
+    //   }
+    // ],
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/vuejs/vitepress' }
-    ]
+      { icon: 'github', link: 'https://github.com/KeyPJ' },
+    ],
   }
 })
