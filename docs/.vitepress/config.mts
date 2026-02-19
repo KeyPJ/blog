@@ -123,6 +123,13 @@ const teekConfig = defineTeekConfig({
     hideOnSinglePage: false, // 只有一页时是否隐藏
     // ...
   },
+  articleBanner: {
+    enabled: true, // 是否启用单文章页 Banner
+    showCategory: true, // 是否展示分类
+    showTag: true, // 是否展示标签
+    defaultCoverImg: "", // 默认封面图
+    defaultCoverBgColor: "", // 默认封面背景色，优先级低于 defaultCoverImg
+  },
 
 });
 

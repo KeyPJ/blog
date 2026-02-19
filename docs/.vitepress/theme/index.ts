@@ -7,13 +7,15 @@ import Teek from "vitepress-theme-teek";
 import "vitepress-theme-teek/index.css";
 import {TkCommentWaline, teekConfigContext} from "vitepress-theme-teek";
 import "vitepress-theme-teek/theme-chalk/tk-comment-waline.css";
-import {TkTransitionCollapse} from "vitepress-theme-teek";
+// import {TkTransitionCollapse} from "vitepress-theme-teek";
+
+import SalaryCalculator from '../components/SalaryCalculator'
 
 export default {
     extends: Teek,
     enhanceApp({app}) {
         // 全局注册折叠过渡组件
-        app.component('TransitionCollapse', TkTransitionCollapse)
+        app.component('SalaryCalculator', SalaryCalculator)
     },
     Layout: () =>
         h(Teek.Layout, null, {

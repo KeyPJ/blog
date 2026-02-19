@@ -8,3 +8,5 @@ out
 gen
 node_modules
 docs/.vitepress/cache
+.vercel
+.env*.local
