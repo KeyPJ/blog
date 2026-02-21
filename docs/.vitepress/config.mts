@@ -138,6 +138,13 @@ const teekConfig = defineTeekConfig({
     enabled: true, // 是否启用文章最近更新栏
     limit: 3, // 文章最近更新栏显示数量
   },
+  articleBanner: {
+    enabled: true, // 是否启用单文章页 Banner
+    showCategory: true, // 是否展示分类
+    showTag: true, // 是否展示标签
+    defaultCoverImg: "", // 默认封面图
+    defaultCoverBgColor: "", // 默认封面背景色，优先级低于 defaultCoverImg
+  },
 
 });
 
