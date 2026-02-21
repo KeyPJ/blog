@@ -244,7 +244,7 @@ const defaultData = {
   pensionPersonalRate: 8,
   pensionCompanyRate: 16,
   medicalPersonalRate: 2,
-  medicalCompanyRate: 9.5,
+  medicalCompanyRate: 9.8,
   unemploymentPersonalRate: 0.5,
   unemploymentCompanyRate: 0.5,
   injuryCompanyRate: 0.2,
