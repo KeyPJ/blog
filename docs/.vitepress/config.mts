@@ -145,6 +145,14 @@ const teekConfig = defineTeekConfig({
     defaultCoverImg: "", // 默认封面图
     defaultCoverBgColor: "", // 默认封面背景色，优先级低于 defaultCoverImg
   },
+  search: {
+    provider: 'algolia',
+    options: {
+      appId: 'HMCOB5KDHS', // 你的 Application ID
+      apiKey: '80ea2b74687131b692dfc8208f071cca', // 你的Search API Key
+      indexName: 'doc' // 你的indexName
+    }
+  }
 
 });
 
