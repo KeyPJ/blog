@@ -280,7 +280,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { Decimal } from 'decimal.js'
 
 const props = defineProps({
@@ -295,6 +295,14 @@ const emit = defineEmits(['update', 'update-medical-fee'])
 // 折叠展开状态
 const socialSecurityExpanded = ref(true) // 社保公积金缴纳设置默认展开
 const annuityExpanded = ref(false) // 年金缴纳设置默认折叠
+
+// 监听税前工资变化，确保不为空
+watch(() => props.data.preTaxSalary, (newValue) => {
+  if (newValue === '' || newValue === null || newValue === undefined) {
+    props.data.preTaxSalary = 0
+    emit('update')
+  }
+}, { immediate: true })
 
 // 切换社保公积金缴纳设置的折叠状态
 const toggleSocialSecurityExpanded = () => {

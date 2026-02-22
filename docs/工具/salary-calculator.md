@@ -35,6 +35,7 @@ coverColor: "#395AE3"
 
 
 <SalaryCalculator />
+<CleanCache />
 
 ## 使用简易说明
 1. 填写税前月工资（必填），其他基数如未填写默认等于税前工资
