@@ -30,11 +30,11 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:modelValue', 'reset-yearly'])
+const emit = defineEmits(['update:modelValue'])
 
 const handleYearlyChange = () => {
   emit('update:modelValue', 'yearly')
-  emit('reset-yearly')
+  // 不再自动重置年度数据，使用已加载的缓存数据
 }
 </script>
 

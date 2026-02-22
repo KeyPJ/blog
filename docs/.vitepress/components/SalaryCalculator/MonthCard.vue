@@ -32,6 +32,7 @@
                 type="number"
                 v-model.number="monthData.data.socialSecurityBase"
                 min="0"
+                :placeholder="`默认等于税前工资, ${monthData.data.preTaxSalary}`"
                 @input="handleSocialSecurityBaseChange"
             >
           </div>
@@ -67,7 +68,7 @@
                 type="number"
                 v-model.number="monthData.data.fundBase"
                 min="0"
-                :placeholder="`默认等于社保基数, ${monthData.data.socialSecurityBase}`"
+                :placeholder="`默认等于社保基数, ${monthData.data.socialSecurityBase || monthData.data.preTaxSalary}`"
                 @input="$emit('update', index)"
             >
           </div>
@@ -104,7 +105,7 @@
                 type="number"
                 v-model.number="monthData.data.annuityBase"
                 min="0"
-                :placeholder="`默认等于社保基数, ${monthData.data.socialSecurityBase}`"
+                :placeholder="`默认等于社保基数, ${monthData.data.socialSecurityBase || monthData.data.preTaxSalary}`"
                 @input="$emit('update', index)"
             >
           </div>

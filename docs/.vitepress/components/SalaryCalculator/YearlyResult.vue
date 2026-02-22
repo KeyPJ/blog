@@ -68,6 +68,7 @@
               <th v-if="!hideCompanyColumns">公司工伤保险</th>
               <th v-if="!hideCompanyColumns">公司公积金</th>
               <th v-if="!hideCompanyColumns">公司企业年金</th>
+              <th v-if="!hideCompanyColumns">公司额外支出</th>
               <th v-if="!hideCompanyColumns">公司总支出</th>
             </tr>
             </thead>
@@ -75,21 +76,21 @@
             <tr v-for="(month, index) in months" :key="index">
               <td>{{ index + 1 }}月</td>
               <td>{{ formatNumber(month.data.preTaxSalary) }}</td>
-              <td>{{ formatNumber(month.data.socialSecurityBase) }}</td>
+              <td>{{ formatNumber(month.data.socialSecurityBase || month.data.preTaxSalary) }}</td>
               <td>{{ month.result.pensionPersonal.toFixed(2) }}</td>
               <td>{{ month.result.unemploymentPersonal.toFixed(2) }}</td>
               <td>{{ month.result.medicalPersonal.toFixed(2) }}</td>
               <td>{{ formatNumber(month.data.medicalExtraFee) }}</td>
-              <td>{{ formatNumber(calculateBase(month.data.enableFund, month.data.fundBase, month.data.socialSecurityBase)) }}</td>
+              <td>{{ formatNumber(calculateBase(month.data.enableFund, month.data.fundBase, month.data.socialSecurityBase, month.data.preTaxSalary)) }}</td>
               <td>{{ month.result.fundPersonal.toFixed(2) }}</td>
-              <td>{{ formatNumber(calculateBase(month.data.enableAnnuity, month.data.annuityBase, month.data.socialSecurityBase)) }}</td>
+              <td>{{ formatNumber(calculateBase(month.data.enableAnnuity, month.data.annuityBase, month.data.socialSecurityBase, month.data.preTaxSalary)) }}</td>
               <td>{{ month.result.annuityPersonal.toFixed(2) }}</td>
-              <td>{{ calculateTaxableIncome(month).toFixed(2) }}</td>
-              <td>{{ calculateCumulativeTaxableIncome(index).toFixed(2) }}</td>
-              <td>{{ calculateTaxRate(index) }}%</td>
-              <td>{{ calculateQuickDeduction(index).toFixed(2) }}</td>
-              <td>{{ calculateCumulativeTax(index).toFixed(2) }}</td>
-              <td>{{ calculatePaidTax(index).toFixed(2) }}</td>
+              <td>{{ (month.result.taxableIncome || 0).toFixed(2) }}</td>
+              <td>{{ (month.result.cumulativeTaxableIncome || 0).toFixed(2) }}</td>
+              <td>{{ (month.result.taxRate || 0) }}%</td>
+              <td>{{ (month.result.quickDeduction || 0).toFixed(2) }}</td>
+              <td>{{ (month.result.cumulativeTax || 0).toFixed(2) }}</td>
+              <td>{{ (month.result.paidTax || 0).toFixed(2) }}</td>
               <td>{{ month.result.personalTax.toFixed(2) }}</td>
               <td>{{ month.result.afterTaxSalary.toFixed(2) }}</td>
               <td v-if="!hideCompanyColumns">{{ month.result.pensionCompany.toFixed(2) }}</td>
@@ -99,6 +100,7 @@
               <td v-if="!hideCompanyColumns">{{ month.result.fundCompany.toFixed(2) }}</td>
               <td v-if="!hideCompanyColumns">{{ month.result.annuityCompany.toFixed(2) }}</td>
               <td v-if="!hideCompanyColumns">{{ calculateCompanyTotal(month).toFixed(2) }}</td>
+              <td v-if="!hideCompanyColumns">{{ (month.data.preTaxSalary + calculateCompanyTotal(month)).toFixed(2) }}</td>
             </tr>
             <tr class="total-row">
               <td>总计</td>
@@ -127,6 +129,7 @@
               <td v-if="!hideCompanyColumns">{{ calculateTotal('fundCompany').toFixed(2) }}</td>
               <td v-if="!hideCompanyColumns">{{ calculateTotal('annuityCompany').toFixed(2) }}</td>
               <td v-if="!hideCompanyColumns">{{ calculateTotalCompanyTotal().toFixed(2) }}</td>
+              <td v-if="!hideCompanyColumns">{{ (summary.totalPreTax + calculateTotalCompanyTotal()).toFixed(2) }}</td>
             </tr>
             </tbody>
           </table>
@@ -138,20 +141,20 @@
         <h4 class="sub-title">年度成本分析</h4>
         <div class="cost-grid">
           <div class="cost-item">
+            <span class="cost-label">员工全年税前收入：</span>
+            <span class="cost-value">¥{{ summary.totalPreTax.toFixed(2) }}</span>
+          </div>
+          <div class="cost-item">
             <span class="cost-label">员工全年到手收入：</span>
             <span class="cost-value">¥{{ summary.totalAfterTax.toFixed(2) }}</span>
           </div>
           <div class="cost-item">
-            <span class="cost-label">公司全年人力成本：</span>
-            <span class="cost-value">¥{{ (summary.totalPreTax + summary.totalCompanyPayment).toFixed(2) }}</span>
-          </div>
-          <div class="cost-item">
-            <span class="cost-label">公司全年社保支出：</span>
+            <span class="cost-label">公司全年额外支出：</span>
             <span class="cost-value">¥{{ summary.totalCompanyPayment.toFixed(2) }}</span>
           </div>
           <div class="cost-item">
-            <span class="cost-label">个人全年总扣除：</span>
-            <span class="cost-value">¥{{ summary.totalPersonalDeduction.toFixed(2) }}</span>
+            <span class="cost-label">公司全年人力成本：</span>
+            <span class="cost-value">¥{{ (summary.totalPreTax + summary.totalCompanyPayment).toFixed(2) }}</span>
           </div>
         </div>
       </div>
@@ -178,8 +181,8 @@ const props = defineProps({
 const hideCompanyColumns = ref(true)
 
 // 计算基数的辅助函数
-const calculateBase = (enable, base, defaultBase) => {
-  return enable === true ? (base || defaultBase || 0) : 0
+const calculateBase = (enable, base, defaultBase, preTaxSalary) => {
+  return enable === true ? (base || defaultBase || preTaxSalary || 0) : 0
 }
 
 // 格式化数字的辅助函数
@@ -191,22 +194,22 @@ const formatNumber = (value) => {
 const exportToExcel = () => {
   // 准备表头
   let headers = [
-    '月份', '税前工资', '养老', '失业', '医疗', '公积金', '大病互助/长护险', 
-    '企业年金', '应纳税所得额', '累计应纳税所得额', '税率', '速算扣除数', 
+    '月份', '税前工资', '养老', '失业', '医疗', '公积金', '大病互助/长护险',
+    '企业年金', '应纳税所得额', '累计应纳税所得额', '税率', '速算扣除数',
     '累计应纳税额', '已缴税额', '本月应缴税额', '税后工资'
   ]
-  
+
   // 如果显示企业部分，添加企业部分表头
   if (!hideCompanyColumns.value) {
     headers = headers.concat([
-      '公司养老保险', '公司失业保险', '公司医疗保险', '公司工伤保险', 
-      '公司公积金', '公司企业年金', '公司总支出'
+      '公司养老保险', '公司失业保险', '公司医疗保险', '公司工伤保险',
+      '公司公积金', '公司企业年金', '公司额外支出', '公司总支出'
     ])
   }
-  
+
   // 准备数据行
   const rows = []
-  
+
   // 添加月度数据
   props.months.forEach((month, index) => {
     const row = [
@@ -227,9 +230,11 @@ const exportToExcel = () => {
       month.result.personalTax.toFixed(2),
       month.result.afterTaxSalary.toFixed(2)
     ]
-    
+
     // 如果显示企业部分，添加企业部分数据
     if (!hideCompanyColumns.value) {
+      const companyExtraExpense = calculateCompanyTotal(month)
+      const companyTotalExpense = parseFloat(month.data.preTaxSalary) + companyExtraExpense
       row.push(
         month.result.pensionCompany.toFixed(2),
         month.result.unemploymentCompany.toFixed(2),
@@ -237,13 +242,14 @@ const exportToExcel = () => {
         month.result.injuryCompany.toFixed(2),
         month.result.fundCompany.toFixed(2),
         month.result.annuityCompany.toFixed(2),
-        calculateCompanyTotal(month).toFixed(2)
+        companyExtraExpense.toFixed(2),
+        companyTotalExpense.toFixed(2)
       )
     }
-    
+
     rows.push(row)
   })
-  
+
   // 添加总计行
   const totalRow = [
     '总计',
@@ -258,9 +264,11 @@ const exportToExcel = () => {
     props.summary.totalTax.toFixed(2),
     props.summary.totalAfterTax.toFixed(2)
   ]
-  
+
   // 如果显示企业部分，添加企业部分总计
   if (!hideCompanyColumns.value) {
+    const totalCompanyExtraExpense = calculateTotalCompanyTotal()
+    const totalCompanyTotalExpense = props.summary.totalPreTax + totalCompanyExtraExpense
     totalRow.push(
       calculateTotal('pensionCompany').toFixed(2),
       calculateTotal('unemploymentCompany').toFixed(2),
@@ -268,25 +276,26 @@ const exportToExcel = () => {
       calculateTotal('injuryCompany').toFixed(2),
       calculateTotal('fundCompany').toFixed(2),
       calculateTotal('annuityCompany').toFixed(2),
-      calculateTotalCompanyTotal().toFixed(2)
+      totalCompanyExtraExpense.toFixed(2),
+      totalCompanyTotalExpense.toFixed(2)
     )
   }
-  
+
   rows.push(totalRow)
-  
+
   // 构建CSV内容
   const csvContent = [
     headers.join(','),
     ...rows.map(row => row.join(','))
   ].join('\n')
-  
+
   // 添加UTF-8 BOM标记，解决中文乱码问题
   const bom = '\ufeff'
   const csvWithBom = bom + csvContent
-  
+
   // 创建Blob对象
   const blob = new Blob([csvWithBom], { type: 'text/csv;charset=utf-8;' })
-  
+
   // 创建下载链接
   const link = document.createElement('a')
   const url = URL.createObjectURL(blob)
@@ -305,14 +314,14 @@ const calculateTaxableIncome = (month) => {
   const specialAddDeduction = parseFloat(month.data.specialAddDeductionTotal) || 0
   const otherDeductions = (parseFloat(month.data.taxDeferredInsurance) || 0) + (parseFloat(month.data.personalPension) || 0) + (parseFloat(month.data.donationDeduction) || 0)
   const taxThreshold = 5000
-  
+
   const result = new Decimal(preTaxSalary)
     .minus(deductions)
     .minus(taxThreshold)
     .minus(specialAddDeduction)
     .minus(otherDeductions)
     .toNumber()
-  
+
   return Math.max(0, result)
 }
 
@@ -363,12 +372,12 @@ const calculateCumulativeTax = (index) => {
   const cumulativeIncome = calculateCumulativeTaxableIncome(index)
   const rate = calculateTaxRate(index) / 100
   const deduction = calculateQuickDeduction(index) * (index + 1)
-  
+
   const result = new Decimal(cumulativeIncome)
     .times(rate)
     .minus(deduction)
     .toNumber()
-  
+
   return Math.max(0, result)
 }
 

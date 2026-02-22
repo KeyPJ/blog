@@ -281,6 +281,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import { Decimal } from 'decimal.js'
 
 const props = defineProps({
   data: {
@@ -308,20 +309,29 @@ const toggleAnnuityExpanded = () => {
 // 计算自动扣除额（用于展示）
 const autoDeduction = () => {
   const data = props.data
-  const base = data.socialSecurityBase === null || data.socialSecurityBase === undefined || data.socialSecurityBase === 0 ? data.preTaxSalary : data.socialSecurityBase
-  const pension = base * data.pensionPersonalRate / 100
-  const medical = base * data.medicalPersonalRate / 100
-  const unemployment = base * data.unemploymentPersonalRate / 100
+  // 处理默认基数，与 calculationUtils.js 保持一致
+  const actualSSBase = data.socialSecurityBase || data.preTaxSalary || 0
+
+  // 使用 decimal.js 进行计算
+  const pension = new Decimal(actualSSBase).times(data.pensionPersonalRate).div(100).toNumber()
+  const medical = new Decimal(actualSSBase).times(data.medicalPersonalRate).div(100).toNumber()
+  const unemployment = new Decimal(actualSSBase).times(data.unemploymentPersonalRate).div(100).toNumber()
   const medicalExtra = data.medicalExtraFee || 0
 
   // 计算公积金
   let fund = 0
   if (data.enableFund) {
-    const fundBase = data.fundBase === null || data.fundBase === undefined || data.fundBase === 0 ? base : data.fundBase
-    fund = fundBase * data.fundPersonalRate / 100
+    const actualFundBase = data.fundBase || actualSSBase
+    fund = new Decimal(actualFundBase).times(data.fundPersonalRate).div(100).toNumber()
   }
 
-  return (pension + medical + unemployment + medicalExtra + fund).toFixed(2)
+  // 使用 decimal.js 求和
+  return new Decimal(pension)
+    .plus(medical)
+    .plus(unemployment)
+    .plus(medicalExtra)
+    .plus(fund)
+    .toFixed(2)
 }
 </script>
 
