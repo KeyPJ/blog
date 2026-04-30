@@ -10,6 +10,7 @@ import "vitepress-theme-teek/theme-chalk/tk-comment-waline.css";
 // import {TkTransitionCollapse} from "vitepress-theme-teek";
 
 import {SalaryCalculator,CleanCache} from '../components/SalaryCalculator'
+import PensionCalculator from '../components/PensionCalculator/PensionCalculator.vue';
 
 export default {
     extends: Teek,
@@ -17,6 +18,7 @@ export default {
         // 全局注册折叠过渡组件
         app.component('SalaryCalculator', SalaryCalculator)
         app.component('CleanCache', CleanCache)
+        app.component('PensionCalculator', PensionCalculator)
     },
     Layout: () =>
         h(Teek.Layout, null, {
